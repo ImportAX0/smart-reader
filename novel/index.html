@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>小说阅读器</title>
+  <style>
+    body { font-family: "SimSun", serif; line-height: 1.8; padding: 20px; background: #fdfdfd; }
+    #dropzone { border: 2px dashed #aaa; padding: 20px; text-align: center; color: #777; margin-bottom: 20px; cursor: pointer; }
+    h2 { text-align: center; margin-top: 40px; }
+    .intro { margin-bottom: 30px; }
+    .novel-title { text-align:center; font-size:1.8em; margin:10px 0; }
+    .novel-meta { text-align:right; color:#666; font-size:0.9em; }
+    .novel-extra { text-align:right; color:#888; font-size:0.85em; }
+    .novel-tags { margin:10px 0; padding:5px; background:#f0f0f0; border-radius:5px; color:#444; }
+    .novel-intro { margin:15px 0; padding:10px; background:#e9f9e9; border-left:3px solid #5a5; }
+    .author-note { margin:20px; padding:10px; border-left:3px solid #999; font-style:italic; color:#555; }
+    #controls { margin-bottom:20px; }
+    #controls button { margin-right:10px; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <button onclick="document.body.style.fontFamily='SimSun'">宋体</button>
+    <button onclick="document.body.style.fontFamily='KaiTi'">楷体</button>
+    <button onclick="document.body.style.fontSize='16px'">小号</button>
+    <button onclick="document.body.style.fontSize='20px'">中号</button>
+    <button onclick="document.body.style.fontSize='24px'">大号</button>
+    <button onclick="document.body.style.background='#fdfdfd'">白底</button>
+    <button onclick="document.body.style.background='#f4f4e8'">米色</button>
+    <button onclick="document.body.style.background='url(https://www.transparenttextures.com/patterns/paper-fibers.png)'">纹理</button>
+    <button onclick="document.body.style.background='#111';document.body.style.color='#eee'">夜间</button>
+  </div>
+
+  <div id="dropzone">把TXT小说拖到这里</div>
+  <div id="content"></div>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const contentDiv = document.getElementById('content');
+
+  dropzone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropzone.style.background = '#eee';
+  });
+
+  dropzone.addEventListener('dragleave', e => {
+    dropzone.style.background = '';
+  });
+
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.style.background = '';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === "text/plain") {
+      const reader = new FileReader();
+      reader.onload = function() {
+        let text = reader.result;
+
+        // 抓取小说介绍（开头到第一个章节前）
+        let introMatch = text.match(/^[\s\S]*?(?=第[一二三四五六七八九十0-9]+章|\d+[\s\S]*章节编号)/);
+        let introHtml = "";
+        if (introMatch) {
+          const introText = introMatch[0].split(/\n/).filter(l => l.trim());
+          if (introText.length > 0) {
+            const title = introText[0];
+            const meta = introText.find(l => l.includes("作品编号"));
+            const extra = introText.find(l => l.includes("投票"));
+            const tags = introText.find(l => l.includes("/"));
+            const introLines = introText.filter(l => ![title, meta, extra, tags].includes(l));
+            introHtml = `
+              <div class="intro">
+                <h1 class="novel-title">${title}</h1>
+                ${meta ? `<div class="novel-meta">${meta}</div>` : ""}
+                ${extra ? `<div class="novel-extra">${extra}</div>` : ""}
+                ${tags ? `<div class="novel-tags">${tags}</div>` : ""}
+                ${introLines.length ? `<div class="novel-intro">${introLines.join("<br>")}</div>` : ""}
+              </div>
+            `;
+          }
+          text = text.slice(introMatch[0].length);
+        }
+
+        const lines = text.split(/\n/);
+        let html = introHtml;
+        let buffer = [];
+        lines.forEach(line => {
+          // 扩展章节匹配：第X章... 或 数字开头的章节
+          const chapterMatch = line.match(/(第[一二三四五六七八九十0-9]+章.*)|(^(?:\d+\.?\s*[^ ]*).*章节编号:\d+)/);
+          if (chapterMatch) {
+            if (buffer.length) {
+              html += `<p>${buffer.join("<br>")}</p>`;
+              buffer = [];
+            }
+            html += `<h2>${line}</h2>`;
+          } else if (line.startsWith("【作家想说的话")) {
+            if (buffer.length) {
+              html += `<p>${buffer.join("<br>")}</p>`;
+              buffer = [];
+            }
+            html += `<div class="author-note">${line.replace(/\n/g,"<br>")}</div>`;
+          } else {
+            buffer.push(line);
+          }
+        });
+        if (buffer.length) html += `<p>${buffer.join("<br>")}</p>`;
+        contentDiv.innerHTML = html;
+      };
+      reader.readAsText(file, "UTF-8");
+    } else {
+      alert("请拖入TXT文件");
+    }
+  });
+</script>
+</body>
+</html>
