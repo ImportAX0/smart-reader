@@ -1,24 +1,25 @@
-# smart-reader
-
-智能阅读器 / Smart Reader  
-个性化文本视觉增强工具（ADHD-friendly reading experience）
+# 智能阅读器 Smart Reader
+个性化文本视觉增强工具（ADHD-friendly reading experience）, 通过视觉增强技术提升阅读效率的工具
 
 ## 🔗 Online Demo
 **Reader (GitHub Pages):**  
 https://importax0.github.io/smart-reader/
 
 > Tip: 建议 Ctrl+Click / Cmd+Click 在新标签打开（不会离开 GitHub 页面）
+## 功能特点
 
----
+-  支持TXT文件拖拽上传
+-  智能词性识别与视觉增强
+-  纯净阅读模式切换
+-  字体、字号、背景自定义
+-  中英文混合支持
 
-## ✨ What it does
-smart-reader 是一个轻量级的网页阅读器，用于改善长文本阅读体验。它通过可视化增强（例如排版、间距、聚焦等）来降低阅读负担，适合长篇文章、小说、资料阅读等场景。
+## 开发计划
 
----
+- [x] 基础文本阅读器
+- [ ] PDF增强版（开发中）
+- [ ] 浏览器插件版本
 
-## 🧩 Features
-- ✅ Clean reading UI（更干净的阅读界面）
-- ✅ Text visual enhancement（文本视觉增强）
-- ✅ ADHD-friendly reading layout（面向注意力友好的排版体验）
-- ✅ Works in browser（纯前端，浏览器直接使用）
-- ✅ Simple & hackable（结构简单，方便继续迭代）
+## 反馈
+
+如有建议或问题，欢迎提Issue！
