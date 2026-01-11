@@ -1,14 +1,193 @@
 <!DOCTYPE html>
-   <html lang="zh-CN">
-   <head>
-       <meta charset="UTF-8">
-       <title>智能阅读器</title>
-   </head>
-   <body>
-       <h1>选择你需要的阅读器：</h1>
-       <ul>
-           <li><a href="basic/">基础文本阅读器</a> - 实时视觉增强</li>
-           <li><a href="pdf/">PDF阅读器</a> - 正在开发</li>
-       </ul>
-   </body>
-   </html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>智能阅读器</title>
+  <style>
+    :root{
+      --bg: #0b0c0f;
+      --card: #12141a;
+      --text: #e8e8ea;
+      --muted: #a8adb7;
+      --line: rgba(255,255,255,.10);
+      --hover: rgba(255,255,255,.06);
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+                   "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 30% 20%, rgba(255,255,255,.08), transparent 60%),
+                  radial-gradient(1000px 500px at 70% 80%, rgba(255,255,255,.05), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .wrap{
+      width: 100%;
+      max-width: 760px;
+    }
+
+    header{
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    h1{
+      margin: 0 0 10px;
+      font-size: clamp(26px, 3vw, 34px);
+      letter-spacing: .5px;
+      font-weight: 700;
+    }
+
+    p.sub{
+      margin: 0 auto;
+      max-width: 46ch;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .card{
+      margin-top: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .list{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .item{
+      display: flex;
+      gap: 14px;
+      padding: 18px 18px;
+      border-top: 1px solid var(--line);
+      align-items: center;
+    }
+    .item:first-child{ border-top: none; }
+
+    .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.22);
+      flex: 0 0 auto;
+      margin-left: 4px;
+    }
+
+    a.entry{
+      flex: 1 1 auto;
+      text-decoration: none;
+      color: var(--text);
+      display: grid;
+      gap: 6px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      transition: background .18s ease, transform .12s ease;
+    }
+
+    a.entry:hover{
+      background: var(--hover);
+      transform: translateY(-1px);
+    }
+
+    .title{
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-weight: 650;
+      letter-spacing: .2px;
+    }
+
+    .desc{
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .tag{
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: rgba(255,255,255,.78);
+      background: rgba(0,0,0,.15);
+    }
+
+    footer{
+      margin-top: 18px;
+      text-align: center;
+      color: rgba(255,255,255,.45);
+      font-size: 12px;
+    }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      padding: 2px 7px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      color: rgba(255,255,255,.75);
+      background: rgba(0,0,0,.25);
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1>智能阅读器</h1>
+      <p class="sub">
+        选择你需要的阅读器入口。整体保持极简黑白灰风格，强调专注与阅读舒适度。
+      </p>
+    </header>
+
+    <div class="card" role="navigation" aria-label="Reader options">
+      <ul class="list">
+        <li class="item">
+          <span class="dot" aria-hidden="true"></span>
+          <a class="entry" href="basic/">
+            <div class="title">
+              基础文本阅读器
+              <span class="tag">Available</span>
+            </div>
+            <div class="desc">用于长文本阅读，支持实时视觉增强与更舒适的排版。</div>
+          </a>
+        </li>
+
+        <li class="item">
+          <span class="dot" aria-hidden="true"></span>
+          <a class="entry" href="pdf/">
+            <div class="title">
+              PDF 阅读器
+              <span class="tag">WIP</span>
+            </div>
+            <div class="desc">PDF 阅读相关功能正在开发中（当前为占位入口）。</div>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <footer>
+      Tip：想保持 GitHub 页面不被覆盖，可以 <span class="kbd">Ctrl</span> + 点击（Windows）或
+      <span class="kbd">Cmd</span> + 点击（Mac）在新标签打开。
+    </footer>
+  </div>
+</body>
+</html>
