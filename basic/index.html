@@ -3,506 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能阅读器 - 文本视觉增强工具</title>
+    <title>Smart Reader - Basic / 基础文本阅读器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/compromise/14.9.0/compromise.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
-            background: #f5f5f5;
+            background: #f8f8f8;
             min-height: 100vh;
-            padding: 20px;
         }
-
+        
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-
-        .header {
-            background: #2c3e50;
-            color: white;
-            padding: 24px 30px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .header p {
-            opacity: 0.85;
-            font-size: 14px;
-        }
-
-        .main-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
+            grid-template-columns: 320px 1fr;
+            min-height: 100vh;
         }
-
-        .input-section, .preview-section {
-            padding: 30px;
+        
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 24px;
+            overflow-y: auto;
         }
-
-        .input-section {
-            border-right: 1px solid #e8e8e8;
-            background: #fafafa;
+        
+        .main {
+            padding: 40px;
+            background: white;
         }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
+        
+        h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
         }
-
-        #dropzone {
-            border: 2px dashed #bbb;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
+        
+        .subtitle {
+            font-size: 13px;
             color: #666;
-            margin-bottom: 15px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        
+        .section {
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        #dropzone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: white;
+            background: #fafafa;
         }
-
+        
         #dropzone:hover {
             border-color: #2c3e50;
-            background: #f9f9f9;
+            background: #f0f0f0;
         }
-
+        
         #dropzone.dragging {
             border-color: #2c3e50;
             background: #e8f4f8;
+            transform: scale(1.02);
         }
-
-        #dropzone-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
+        
+        .dropzone-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
         }
-
+        
+        .dropzone-text {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        .dropzone-hint {
+            font-size: 12px;
+            color: #999;
+        }
+        
         #inputText {
             width: 100%;
-            height: 350px;
-            padding: 15px;
+            height: 120px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
-            font-size: 15px;
-            line-height: 1.8;
+            font-size: 13px;
+            line-height: 1.6;
             resize: vertical;
             font-family: inherit;
-            background: white;
+            margin-top: 12px;
         }
-
+        
         #inputText:focus {
             outline: none;
             border-color: #2c3e50;
         }
-
-        .controls {
-            margin-top: 20px;
-        }
-
-        .view-controls {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        
+        .btn-row {
+            display: flex;
             gap: 8px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e8e8e8;
+            margin-top: 12px;
         }
-
-        .view-btn {
-            padding: 8px;
-            border: 1.5px solid #ddd;
+        
+        .btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
             background: white;
-            color: #666;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
             transition: all 0.2s;
+            font-weight: 500;
         }
-
-        .view-btn:hover {
-            border-color: #2c3e50;
-            color: #2c3e50;
+        
+        .btn:hover {
+            background: #f5f5f5;
+            border-color: #bbb;
         }
-
-        .view-btn.active {
+        
+        .btn.primary {
             background: #2c3e50;
             color: white;
             border-color: #2c3e50;
         }
-
-        .mode-selector {
+        
+        .btn.primary:hover {
+            background: #34495e;
+        }
+        
+        .mode-btns {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 6px;
         }
-
+        
         .mode-btn {
-            padding: 10px;
+            padding: 10px 8px;
             border: 1.5px solid #ddd;
             background: white;
-            color: #666;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 11px;
             transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
         }
-
+        
         .mode-btn:hover {
             border-color: #2c3e50;
-            color: #2c3e50;
         }
-
+        
         .mode-btn.active {
             background: #2c3e50;
             color: white;
             border-color: #2c3e50;
         }
-
-        .style-controls {
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e8e8e8;
-            margin-bottom: 15px;
-        }
-
-        .style-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .style-buttons {
+        
+        .checkbox-group {
             display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
             gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .style-btn {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
             font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .style-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .advanced-toggle {
-            margin-top: 15px;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 13px;
-            color: #666;
-            transition: background 0.2s;
-        }
-
-        .advanced-toggle:hover {
-            background: #e5e5e5;
-        }
-
-        .advanced-controls {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .advanced-controls.open {
-            max-height: 600px;
-        }
-
-        .control-group {
-            margin-top: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e8e8e8;
-        }
-
-        .control-label {
-            font-size: 13px;
-            font-weight: 500;
             color: #555;
-            margin-bottom: 10px;
-            display: block;
+            line-height: 1.5;
         }
-
-        .slider-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .slider-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .slider-label {
-            min-width: 70px;
-            font-size: 12px;
-            color: #777;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            height: 4px;
-            border-radius: 2px;
-            background: #e0e0e0;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #2c3e50;
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-top: 2px;
             cursor: pointer;
         }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #2c3e50;
-            cursor: pointer;
-            border: none;
-        }
-
-        .value-display {
-            min-width: 45px;
-            text-align: right;
-            font-size: 12px;
-            color: #999;
-            font-family: monospace;
-        }
-
+        
         #preview {
-            line-height: 2.2;
+            line-height: 2.4;
             font-size: 17px;
             color: #1a1a1a;
-            padding: 20px;
-            background: white;
-            border-radius: 6px;
-            min-height: 400px;
-            border: 1px solid #e8e8e8;
+            max-width: 900px;
+            user-select: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
         }
-
-        #preview.bg-beige {
-            background: #f4f4e8;
+        
+        #preview h2 {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 48px 0 24px 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 12px;
         }
-
-        #preview.bg-green {
-            background: #e8f4e8;
-        }
-
+        
         .placeholder {
             color: #bbb;
             font-style: italic;
             text-align: center;
-            padding-top: 80px;
+            padding: 120px 40px;
+            font-size: 15px;
+            line-height: 1.8;
         }
-
-        .tips {
-            margin-top: 15px;
-            padding: 12px;
+        
+        .tip-box {
             background: #fff9e6;
             border-left: 3px solid #ffc107;
-            border-radius: 4px;
-            font-size: 13px;
+            padding: 12px;
+            font-size: 11px;
             color: #856404;
             line-height: 1.6;
+            border-radius: 4px;
+            margin-top: 12px;
         }
-
+        
+        .tip-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        
         @media (max-width: 968px) {
-            .main-content {
+            .container {
                 grid-template-columns: 1fr;
             }
             
-            .input-section {
+            .sidebar {
                 border-right: none;
-                border-bottom: 1px solid #e8e8e8;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .main {
+                padding: 24px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>智能阅读器</h1>
-            <p>支持TXT上传或直接输入 · 通过视觉增强提升阅读效率</p>
-        </div>
-
-        <div class="main-content">
-            <div class="input-section">
-                <div class="section-title">输入文本</div>
-                
+        <div class="sidebar">
+            <h1>📖 Smart Reader</h1>
+            <p class="subtitle">
+                Upload text, intelligently highlight keywords, copy with formatting preserved.
+                <br>上传文本，智能高亮关键词，复制时保留格式。
+            </p>
+            
+            <div class="section">
+                <div class="section-title">📄 Input File or Text</div>
                 <div id="dropzone">
-                    <div id="dropzone-icon">📄</div>
-                    <div><strong>拖拽TXT文件到这里</strong></div>
-                    <div style="font-size: 12px; color: #999; margin-top: 5px;">或点击选择文件</div>
+                    <div class="dropzone-icon">📁</div>
+                    <div class="dropzone-text"><strong>Drop TXT file here</strong></div>
+                    <div class="dropzone-hint">or click to select / 或点击选择文件</div>
                     <input type="file" id="fileInput" accept=".txt" style="display: none;">
                 </div>
-
-                <div style="text-align: center; color: #999; font-size: 13px; margin-bottom: 10px;">或在下方直接输入</div>
-
-                <textarea id="inputText" placeholder="在这里输入或粘贴文本...">在遥远的未来，人类已经掌握了星际旅行的技术。宇航员张伟驾驶着最先进的飞船，穿越了无数星系。他的任务是寻找适合人类居住的新星球。经过漫长的旅程，他终于发现了一颗美丽的蓝色星球。
-
-这颗星球上有清澈的水源和茂密的森林，简直就是人类梦寐以求的新家园。The spacecraft traveled at incredible speeds through the cosmos. Advanced technology allowed humans to explore distant galaxies.</textarea>
-
-                <div class="controls">
-                    <div class="section-title" style="margin-top: 20px;">阅读模式</div>
-                    <div class="view-controls">
-                        <button class="view-btn active" onclick="switchViewMode('enhanced')">智能增强</button>
-                        <button class="view-btn" onclick="switchViewMode('plain')">纯净阅读</button>
-                    </div>
-
-                    <div id="enhancedControls">
-                        <div class="section-title">增强模式</div>
-                        <div class="mode-selector">
-                            <button class="mode-btn" onclick="applyMode('minimal')">极简</button>
-                            <button class="mode-btn active" onclick="applyMode('classic')">经典</button>
-                            <button class="mode-btn" onclick="applyMode('strong')">强化</button>
-                        </div>
-
-                        <div class="advanced-toggle" onclick="toggleAdvanced()">
-                            <span id="toggleText">▼ 展开高级设置</span>
-                        </div>
-
-                        <div class="advanced-controls" id="advancedControls">
-                            <div class="control-group">
-                                <div class="control-label">关键内容（名词、动词）</div>
-                                <div class="slider-group">
-                                    <span class="slider-label">色调</span>
-                                    <input type="color" id="keywordColor" value="#1a1a1a" style="width: 50px; height: 30px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
-                                    <span style="font-size: 11px; color: #999; margin-left: 8px;">💡 #2a1a1a (偏红) #1a1a2a (偏蓝)</span>
-                                </div>
-                                <div class="slider-group">
-                                    <span class="slider-label">字号</span>
-                                    <input type="range" id="keywordSize" min="80" max="140" value="110">
-                                    <span class="value-display" id="keywordSizeValue">110%</span>
-                                </div>
-                                <div class="slider-group">
-                                    <span class="slider-label">粗细</span>
-                                    <input type="range" id="keywordWeight" min="400" max="700" value="600" step="100">
-                                    <span class="value-display" id="keywordWeightValue">600</span>
-                                </div>
-                                <div class="slider-group">
-                                    <span class="slider-label">颜色深度</span>
-                                    <input type="range" id="keywordOpacity" min="70" max="100" value="95">
-                                    <span class="value-display" id="keywordOpacityValue">95%</span>
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <div class="control-label">次要内容（连词、介词）</div>
-                                <div class="slider-group">
-                                    <span class="slider-label">色调</span>
-                                    <input type="color" id="minorColor" value="#666666" style="width: 50px; height: 30px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
-                                    <span style="font-size: 11px; color: #999; margin-left: 8px;">💡 #665555 (偏暖) #556666 (偏冷)</span>
-                                </div>
-                                <div class="slider-group">
-                                    <span class="slider-label">字号</span>
-                                    <input type="range" id="minorSize" min="60" max="100" value="85">
-                                    <span class="value-display" id="minorSizeValue">85%</span>
-                                </div>
-                                <div class="slider-group">
-                                    <span class="slider-label">粗细</span>
-                                    <input type="range" id="minorWeight" min="300" max="500" value="400" step="100">
-                                    <span class="value-display" id="minorWeightValue">400</span>
-                                </div>
-                                <div class="slider-group">
-                                    <span class="slider-label">颜色深度</span>
-                                    <input type="range" id="minorOpacity" min="20" max="70" value="40">
-                                    <span class="value-display" id="minorOpacityValue">40%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="style-controls">
-                        <div class="style-label">字体</div>
-                        <div class="style-buttons">
-                            <button class="style-btn" onclick="changeFont('system')">系统默认</button>
-                            <button class="style-btn" onclick="changeFont('SimSun')">宋体</button>
-                            <button class="style-btn" onclick="changeFont('KaiTi')">楷体</button>
-                        </div>
-                        
-                        <div class="style-label" style="margin-top: 12px;">字号</div>
-                        <div class="style-buttons">
-                            <button class="style-btn" onclick="changeFontSize('14px')">小</button>
-                            <button class="style-btn" onclick="changeFontSize('17px')">中</button>
-                            <button class="style-btn" onclick="changeFontSize('20px')">大</button>
-                            <button class="style-btn" onclick="changeFontSize('24px')">特大</button>
-                        </div>
-
-                        <div class="style-label" style="margin-top: 12px;">背景</div>
-                        <div class="style-buttons">
-                            <button class="style-btn" onclick="changeBackground('white')">纯白</button>
-                            <button class="style-btn" onclick="changeBackground('beige')">米色</button>
-                            <button class="style-btn" onclick="changeBackground('green')">护眼绿</button>
-                        </div>
-                    </div>
-
-                    <div class="tips">
-                        💡 <strong>提示：</strong>支持中英文混合文本。"经典"模式通过字号和粗细来区分重要程度，适合快速阅读。
-                    </div>
+                <textarea id="inputText" placeholder="Or paste/type text here...
+或在此粘贴/输入文本..."></textarea>
+                <div class="btn-row">
+                    <button class="btn primary" onclick="loadText()">Load / 加载</button>
+                    <button class="btn" onclick="clearAll()">Clear / 清空</button>
                 </div>
             </div>
-
-            <div class="preview-section">
-                <div class="section-title">实时预览</div>
-                <div id="preview">
-                    <div class="placeholder">拖拽TXT文件或在左侧输入文本</div>
+            
+            <div class="section">
+                <div class="section-title">🔍 Dim Mode / 弱化模式</div>
+                <div class="mode-btns">
+                    <button class="mode-btn active" onclick="setDimMode('conservative')">保守</button>
+                    <button class="mode-btn" onclick="setDimMode('balanced')">平衡</button>
+                    <button class="mode-btn" onclick="setDimMode('aggressive')">激进</button>
+                </div>
+                <div class="tip-box">
+                    <strong>保守 Conservative:</strong> 仅弱化 的地得了着过<br>
+                    <strong>平衡 Balanced:</strong> + 和与或但因为所以<br>
+                    <strong>激进 Aggressive:</strong> + 在从到对向以被把是有
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">⚙️ Smart Analysis</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="useTFIDF" checked onchange="processText()">
+                        <span><strong>TF-IDF Algorithm</strong><br>自动识别段落中的独特关键词</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="useCompromise" checked onchange="processText()">
+                        <span><strong>Compromise.js (English NLP)</strong><br>英文名词、动词、人名、地点识别</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="enableChapter" checked onchange="processText()">
+                        <span><strong>Chapter Detection</strong><br>自动识别章节标题（第X章、Chapter X）</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main">
+            <div id="preview">
+                <div class="placeholder">
+                    📄 Drop a TXT file or paste text in the sidebar<br>
+                    拖拽TXT文件或在左侧粘贴文本<br><br>
+                    ✨ Keywords will be highlighted automatically<br>
+                    关键词将被自动高亮<br><br>
+                    📋 You can copy the enhanced text with formatting<br>
+                    可以复制带格式的增强文本
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentViewMode = 'enhanced';
-        let currentMode = 'classic';
+        let currentDimMode = 'conservative';
+        let storedText = '';
 
-        // 简化的中文分词
-        function simpleSegment(text) {
+        const dimModes = {
+            conservative: ['的', '地', '得', '了', '着', '过'],
+            balanced: ['的', '地', '得', '了', '着', '过', '和', '与', '或', '而', '但', '因为', '所以'],
+            aggressive: ['的', '地', '得', '了', '着', '过', '和', '与', '或', '而', '但', '因为', '所以', '在', '从', '到', '对', '向', '以', '被', '把', '是', '有', 'the', 'a', 'an', 'and', 'or', 'but', 'of', 'to', 'in', 'on', 'at', 'for', 'with', 'by', 'from', 'as', 'it', 'is', 'was', 'are', 'were', 'been', 'be']
+        };
+
+        function setDimMode(mode) {
+            currentDimMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            processText();
+        }
+
+        function calculateTFIDF(text) {
+            if (!document.getElementById('useTFIDF').checked) return new Set();
+            
+            const words = text.match(/[\u4e00-\u9fa5a-zA-Z]+/g) || [];
+            const wordFreq = {};
+            const dimWords = dimModes[currentDimMode];
+            
+            words.forEach(word => {
+                if (word.length > 1 && !dimWords.includes(word.toLowerCase())) {
+                    wordFreq[word] = (wordFreq[word] || 0) + 1;
+                }
+            });
+            
+            const sorted = Object.entries(wordFreq).sort((a, b) => b[1] - a[1]);
+            return new Set(sorted.slice(0, Math.min(20, sorted.length)).map(x => x[0]));
+        }
+
+        function analyzeWithCompromise(text) {
+            if (!window.nlp || !document.getElementById('useCompromise').checked) return new Set();
+            
+            try {
+                const doc = nlp(text);
+                const important = new Set();
+                
+                doc.nouns().out('array').forEach(n => important.add(n));
+                doc.verbs().out('array').forEach(v => important.add(v));
+                doc.people().out('array').forEach(p => important.add(p));
+                doc.places().out('array').forEach(p => important.add(p));
+                
+                return important;
+            } catch(e) {
+                return new Set();
+            }
+        }
+
+        function segmentText(text) {
             const result = [];
-            
-            const minorWords = ['的', '地', '得', '和', '与', '或', '而', '但', '因为', '所以', '如果', '那么', '在', '从', '到', '对', '向', '以', '被', '把', '了', '着', '过', '是', '有', 'the', 'a', 'an', 'and', 'or', 'but', 'of', 'to', 'in', 'on', 'at', 'for', 'with', 'by', 'from', 'as', 'it', 'is', 'was', 'are', 'were', 'been', 'be'];
-            
-            const verbs = ['说', '做', '去', '来', '看', '想', '知道', '成为', '使用', '发现', '掌握', '驾驶', '穿越', '寻找', '经过', '允许', 'travel', 'discover', 'explore', 'allow', 'find'];
+            const dimWords = dimModes[currentDimMode];
+            const tfidfWords = calculateTFIDF(text);
+            const compromiseWords = analyzeWithCompromise(text);
             
             let i = 0;
             while (i < text.length) {
@@ -520,34 +403,41 @@
                         word += text[i];
                         i++;
                     }
-                    const lowerWord = word.toLowerCase();
-                    if (minorWords.includes(lowerWord)) {
-                        result.push({ word: word, type: 'minor' });
+                    const lower = word.toLowerCase();
+                    
+                    if (dimWords.includes(lower)) {
+                        result.push({ word, type: 'dim' });
+                    } else if (tfidfWords.has(word) || compromiseWords.has(word) || compromiseWords.has(lower)) {
+                        result.push({ word, type: 'key' });
                     } else {
-                        result.push({ word: word, type: 'key' });
+                        result.push({ word, type: 'normal' });
                     }
                     continue;
                 }
                 
                 if (/\d/.test(char)) {
                     let word = '';
-                    while (i < text.length && /[\d.]/.test(text[i])) {
+                    while (i < text.length && /[\d.,]/.test(text[i])) {
                         word += text[i];
                         i++;
                     }
-                    result.push({ word: word, type: 'key' });
+                    if (i < text.length && /[万亿千百十%元米克斤]/.test(text[i])) {
+                        word += text[i];
+                        i++;
+                    }
+                    result.push({ word, type: 'key' });
                     continue;
                 }
                 
                 let matched = false;
                 for (let len = 3; len >= 2; len--) {
                     const substr = text.substr(i, len);
-                    if (minorWords.includes(substr)) {
-                        result.push({ word: substr, type: 'minor' });
+                    if (dimWords.includes(substr)) {
+                        result.push({ word: substr, type: 'dim' });
                         i += len;
                         matched = true;
                         break;
-                    } else if (verbs.includes(substr)) {
+                    } else if (tfidfWords.has(substr)) {
                         result.push({ word: substr, type: 'key' });
                         i += len;
                         matched = true;
@@ -556,10 +446,12 @@
                 }
                 
                 if (!matched) {
-                    if (minorWords.includes(char)) {
-                        result.push({ word: char, type: 'minor' });
-                    } else {
+                    if (dimWords.includes(char)) {
+                        result.push({ word: char, type: 'dim' });
+                    } else if (tfidfWords.has(char)) {
                         result.push({ word: char, type: 'key' });
+                    } else {
+                        result.push({ word: char, type: 'normal' });
                     }
                     i++;
                 }
@@ -569,198 +461,95 @@
         }
 
         function processText() {
-            const text = document.getElementById('inputText').value;
             const preview = document.getElementById('preview');
             
-            if (!text.trim()) {
-                preview.innerHTML = '<div class="placeholder">拖拽TXT文件或在左侧输入文本</div>';
+            if (!storedText.trim()) {
+                preview.innerHTML = `<div class="placeholder">
+                    📄 Drop a TXT file or paste text in the sidebar<br>
+                    拖拽TXT文件或在左侧粘贴文本<br><br>
+                    ✨ Keywords will be highlighted automatically<br>
+                    关键词将被自动高亮<br><br>
+                    📋 You can copy the enhanced text with formatting<br>
+                    可以复制带格式的增强文本
+                </div>`;
                 return;
             }
             
-            const paragraphs = text.split('\n');
             let html = '';
+            const paragraphs = storedText.split('\n');
+            const enableChapter = document.getElementById('enableChapter').checked;
+            const chapterPatterns = [/^第.{1,3}章.*/, /^Chapter \d+.*/, /^\d+\./];
             
-            if (currentViewMode === 'plain') {
-                // 纯净模式：直接显示
-                paragraphs.forEach((para, index) => {
-                    if (para.trim() === '') {
-                        html += '<br>';
-                    } else {
-                        html += para;
-                        if (index < paragraphs.length - 1) {
-                            html += '<br>';
+            paragraphs.forEach((para, idx) => {
+                if (para.trim() === '') {
+                    html += '<br>';
+                    return;
+                }
+                
+                let isChapter = false;
+                if (enableChapter) {
+                    for (const pattern of chapterPatterns) {
+                        if (pattern.test(para)) {
+                            html += `<h2>${para}</h2>`;
+                            isChapter = true;
+                            break;
                         }
                     }
-                });
-            } else {
-                // 增强模式
-                const keyColor = document.getElementById('keywordColor').value;
-                const keySize = document.getElementById('keywordSize').value;
-                const keyWeight = document.getElementById('keywordWeight').value;
-                const keyOpacity = document.getElementById('keywordOpacity').value / 100;
+                }
                 
-                const minorColor = document.getElementById('minorColor').value;
-                const minorSize = document.getElementById('minorSize').value;
-                const minorWeight = document.getElementById('minorWeight').value;
-                const minorOpacity = document.getElementById('minorOpacity').value / 100;
-                
-                paragraphs.forEach((para, index) => {
-                    if (para.trim() === '') {
-                        html += '<br>';
-                    } else {
-                        const segments = simpleSegment(para);
-                        
-                        segments.forEach(seg => {
-                            if (seg.type === 'key') {
-                                const r = parseInt(keyColor.substr(1,2), 16);
-                                const g = parseInt(keyColor.substr(3,2), 16);
-                                const b = parseInt(keyColor.substr(5,2), 16);
-                                const color = `rgba(${r}, ${g}, ${b}, ${keyOpacity})`;
-                                html += `<span style="font-size: ${keySize}%; font-weight: ${keyWeight}; color: ${color};">${seg.word}</span>`;
-                            } else if (seg.type === 'minor') {
-                                const r = parseInt(minorColor.substr(1,2), 16);
-                                const g = parseInt(minorColor.substr(3,2), 16);
-                                const b = parseInt(minorColor.substr(5,2), 16);
-                                const color = `rgba(${r}, ${g}, ${b}, ${minorOpacity})`;
-                                html += `<span style="font-size: ${minorSize}%; font-weight: ${minorWeight}; color: ${color};">${seg.word}</span>`;
-                            } else {
-                                html += seg.word;
-                            }
-                        });
-                        
-                        if (index < paragraphs.length - 1) {
-                            html += '<br>';
+                if (!isChapter) {
+                    const segments = segmentText(para);
+                    
+                    segments.forEach(seg => {
+                        if (seg.type === 'key') {
+                            html += `<span style="font-size: 110%; font-weight: 600; color: rgba(26,26,26,0.95);">${seg.word}</span>`;
+                        } else if (seg.type === 'dim') {
+                            html += `<span style="font-size: 85%; font-weight: 400; color: rgba(26,26,26,0.4);">${seg.word}</span>`;
+                        } else {
+                            html += seg.word;
                         }
-                    }
-                });
-            }
+                    });
+                    
+                    if (idx < paragraphs.length - 1) html += '<br>';
+                }
+            });
             
             preview.innerHTML = html;
         }
 
-        function switchViewMode(mode) {
-            currentViewMode = mode;
-            
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            const enhancedControls = document.getElementById('enhancedControls');
-            if (mode === 'enhanced') {
-                enhancedControls.style.display = 'block';
-            } else {
-                enhancedControls.style.display = 'none';
-            }
-            
+        function loadText() {
+            storedText = document.getElementById('inputText').value;
             processText();
         }
 
-        function applyMode(mode) {
-            currentMode = mode;
-            
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            if (mode === 'minimal') {
-                document.getElementById('keywordSize').value = 105;
-                document.getElementById('keywordWeight').value = 500;
-                document.getElementById('keywordOpacity').value = 90;
-                document.getElementById('minorSize').value = 90;
-                document.getElementById('minorWeight').value = 400;
-                document.getElementById('minorOpacity').value = 50;
-            } else if (mode === 'classic') {
-                document.getElementById('keywordSize').value = 110;
-                document.getElementById('keywordWeight').value = 600;
-                document.getElementById('keywordOpacity').value = 95;
-                document.getElementById('minorSize').value = 85;
-                document.getElementById('minorWeight').value = 400;
-                document.getElementById('minorOpacity').value = 40;
-            } else if (mode === 'strong') {
-                document.getElementById('keywordSize').value = 120;
-                document.getElementById('keywordWeight').value = 700;
-                document.getElementById('keywordOpacity').value = 100;
-                document.getElementById('minorSize').value = 75;
-                document.getElementById('minorWeight').value = 300;
-                document.getElementById('minorOpacity').value = 30;
-            }
-            
-            updateDisplays();
+        function clearAll() {
+            storedText = '';
+            document.getElementById('inputText').value = '';
             processText();
         }
 
-        function toggleAdvanced() {
-            const controls = document.getElementById('advancedControls');
-            const toggleText = document.getElementById('toggleText');
-            
-            if (controls.classList.contains('open')) {
-                controls.classList.remove('open');
-                toggleText.textContent = '▼ 展开高级设置';
-            } else {
-                controls.classList.add('open');
-                toggleText.textContent = '▲ 收起高级设置';
-            }
-        }
-
-        function changeFont(font) {
-            const preview = document.getElementById('preview');
-            if (font === 'system') {
-                preview.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif';
-            } else {
-                preview.style.fontFamily = `"${font}", serif`;
-            }
-        }
-
-        function changeFontSize(size) {
-            document.getElementById('preview').style.fontSize = size;
-        }
-
-        function changeBackground(bg) {
-            const preview = document.getElementById('preview');
-            preview.classList.remove('bg-beige', 'bg-green');
-            
-            if (bg === 'beige') {
-                preview.classList.add('bg-beige');
-            } else if (bg === 'green') {
-                preview.classList.add('bg-green');
-            }
-        }
-
-        function updateDisplays() {
-            document.getElementById('keywordSizeValue').textContent = document.getElementById('keywordSize').value + '%';
-            document.getElementById('keywordWeightValue').textContent = document.getElementById('keywordWeight').value;
-            document.getElementById('keywordOpacityValue').textContent = document.getElementById('keywordOpacity').value + '%';
-            
-            document.getElementById('minorSizeValue').textContent = document.getElementById('minorSize').value + '%';
-            document.getElementById('minorWeightValue').textContent = document.getElementById('minorWeight').value;
-            document.getElementById('minorOpacityValue').textContent = document.getElementById('minorOpacity').value + '%';
-        }
-
-        // 文件拖拽和上传
+        // File handling
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
-        const inputText = document.getElementById('inputText');
 
         dropzone.addEventListener('click', () => fileInput.click());
-
+        
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropzone.classList.add('dragging');
         });
-
+        
         dropzone.addEventListener('dragleave', () => {
             dropzone.classList.remove('dragging');
         });
-
+        
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('dragging');
             const file = e.dataTransfer.files[0];
             handleFile(file);
         });
-
+        
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             handleFile(file);
@@ -769,30 +558,16 @@
         function handleFile(file) {
             if (file && file.type === 'text/plain') {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    inputText.value = e.target.result;
+                reader.onload = (e) => {
+                    document.getElementById('inputText').value = e.target.result;
+                    storedText = e.target.result;
                     processText();
                 };
                 reader.readAsText(file, 'UTF-8');
             } else {
-                alert('请上传TXT文本文件');
+                alert('Please upload a TXT file / 请上传TXT文本文件');
             }
         }
-
-        // 绑定事件
-        document.getElementById('inputText').addEventListener('input', processText);
-        
-        ['keywordColor', 'keywordSize', 'keywordWeight', 'keywordOpacity',
-         'minorColor', 'minorSize', 'minorWeight', 'minorOpacity'].forEach(id => {
-            document.getElementById(id).addEventListener('input', function() {
-                updateDisplays();
-                processText();
-            });
-        });
-
-        // 初始化
-        updateDisplays();
-        processText();
     </script>
 </body>
 </html>
